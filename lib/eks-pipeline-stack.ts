@@ -52,7 +52,7 @@ export class EksPipelineStack extends cdk.Stack {
         input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster-main.zip'),
         commands: [
           // Commands to load cdk.context.json from somewhere here
-          'cd aws-cdk-pipelines-eks-cluster',
+          'cd aws-cdk-pipelines-eks-cluster-main',
           'ls -lrt',
           'npm ci',
           'npm run build',
@@ -60,7 +60,7 @@ export class EksPipelineStack extends cdk.Stack {
           'npx cdk synth',
           // Commands to store cdk.context.json back here
         ],
-        // primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
+        primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
       }),
       pipelineName: "EKSClusterBlueGreen",
       codeBuildDefaults: {
