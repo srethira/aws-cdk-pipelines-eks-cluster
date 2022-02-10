@@ -53,7 +53,6 @@ export class EksPipelineStack extends cdk.Stack {
         commands: [
           // Commands to load cdk.context.json from somewhere here
           'cd aws-cdk-pipelines-eks-cluster-main',
-          'ls -lrt',
           'npm ci',
           'npm run build',
           'npm i constructs @aws-cdk/assets @aws-cdk/region-info',
