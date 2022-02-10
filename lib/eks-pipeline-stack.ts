@@ -60,7 +60,7 @@ export class EksPipelineStack extends cdk.Stack {
           'npx cdk synth',
           // Commands to store cdk.context.json back here
         ],
-        primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
+        primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster-main/cdk.out',
       }),
       pipelineName: "EKSClusterBlueGreen",
       codeBuildDefaults: {
