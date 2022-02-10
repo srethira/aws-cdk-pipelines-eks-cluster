@@ -49,7 +49,7 @@ export class EksPipelineStack extends cdk.Stack {
     
     const pipeline = new CodePipeline(this, 'Pipeline', {
       synth: new ShellStep('Synth', {
-        input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster.zip'),
+        input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster-main.zip'),
         commands: [
           // Commands to load cdk.context.json from somewhere here
           'cd aws-cdk-pipelines-eks-cluster',
