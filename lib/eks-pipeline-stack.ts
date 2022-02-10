@@ -56,6 +56,7 @@ export class EksPipelineStack extends cdk.Stack {
           'ls -lrt',
           'npm ci',
           'npm run build',
+          'npm i constructs @aws-cdk/assets @aws-cdk/region-info',
           'npx cdk synth',
           // Commands to store cdk.context.json back here
         ],
