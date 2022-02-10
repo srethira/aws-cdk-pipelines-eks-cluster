@@ -17,49 +17,17 @@ export class EksPipelineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const pipeline = new CodePipeline(this, "Pipeline", {
-      synth: new ShellStep("Synth", {
-        input: CodePipelineSource.gitHub(
-          "srethira/aws-cdk-pipelines-eks-cluster",
-          "main",
-          {
-            authentication:
-              cdk.SecretValue.secretsManager("github-oauth-token"),
-          }
-        ),
-        commands: ["npm ci", "npm run build", "npx cdk synth"],
-      }),
-      pipelineName: "EKSClusterBlueGreen",
-      codeBuildDefaults: {
-        rolePolicy: [
-              new iam.PolicyStatement({
-                actions: ['sts:AssumeRole'],
-                resources: ['*'],
-                conditions: {
-                  StringEquals: {
-                    'iam:ResourceTag/aws-cdk:bootstrap-role': 'lookup',
-                  },
-                },
-              }),
-        ],
-      },
-    });
-    
-    // const bucket = s3.Bucket.fromBucketName(this, 'Bucket', 'medtronic-cdk-eks');
-    
-    // const pipeline = new CodePipeline(this, 'Pipeline', {
-    //   synth: new ShellStep('Synth', {
-    //     input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster.zip'),
-    //     commands: [
-    //       // Commands to load cdk.context.json from somewhere here
-    //       'cd aws-cdk-pipelines-eks-cluster',
-    //       'ls -lrt',
-    //       'npm ci',
-    //       'npm run build',
-    //       'npx cdk synth',
-    //       // Commands to store cdk.context.json back here
-    //     ],
-    //     primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
+    // const pipeline = new CodePipeline(this, "Pipeline", {
+    //   synth: new ShellStep("Synth", {
+    //     input: CodePipelineSource.gitHub(
+    //       "srethira/aws-cdk-pipelines-eks-cluster",
+    //       "main",
+    //       {
+    //         authentication:
+    //           cdk.SecretValue.secretsManager("github-oauth-token"),
+    //       }
+    //     ),
+    //     commands: ["npm ci", "npm run build", "npx cdk synth"],
     //   }),
     //   pipelineName: "EKSClusterBlueGreen",
     //   codeBuildDefaults: {
@@ -77,7 +45,38 @@ export class EksPipelineStack extends cdk.Stack {
     //   },
     // });
     
-
+    const bucket = s3.Bucket.fromBucketName(this, 'Bucket', 'medtronic-cdk-eks');
+    
+    const pipeline = new CodePipeline(this, 'Pipeline', {
+      synth: new ShellStep('Synth', {
+        input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster.zip'),
+        commands: [
+          // Commands to load cdk.context.json from somewhere here
+          'cd aws-cdk-pipelines-eks-cluster',
+          'ls -lrt',
+          'npm ci',
+          'npm run build',
+          'npx cdk synth',
+          // Commands to store cdk.context.json back here
+        ],
+        // primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
+      }),
+      pipelineName: "EKSClusterBlueGreen",
+      codeBuildDefaults: {
+        rolePolicy: [
+              new iam.PolicyStatement({
+                actions: ['sts:AssumeRole'],
+                resources: ['*'],
+                conditions: {
+                  StringEquals: {
+                    'iam:ResourceTag/aws-cdk:bootstrap-role': 'lookup',
+                  },
+                },
+              }),
+        ],
+      },
+    });
+    
     const clusterANameSuffix = "blue";
     const clusterBNameSuffix = "green";
 
