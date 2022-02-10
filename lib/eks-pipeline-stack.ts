@@ -1,11 +1,14 @@
 import * as cdk from "@aws-cdk/core";
 import eks = require("@aws-cdk/aws-eks");
+import s3 = require("@aws-cdk/aws-s3");
 import * as ssm from "@aws-cdk/aws-ssm";
+import iam = require("@aws-cdk/aws-iam");
 import {
   CodePipeline,
   CodePipelineSource,
   ShellStep,
   ManualApprovalStep,
+  CodeBuildStep,
 } from "@aws-cdk/pipelines";
 import { EksClusterStage } from "./eks-cluster-stage";
 import { AppDnsStage } from "./app-dns-stage";
@@ -17,7 +20,7 @@ export class EksPipelineStack extends cdk.Stack {
     const pipeline = new CodePipeline(this, "Pipeline", {
       synth: new ShellStep("Synth", {
         input: CodePipelineSource.gitHub(
-          "aws-samples/aws-cdk-pipelines-eks-cluster",
+          "srethira/aws-cdk-pipelines-eks-cluster",
           "main",
           {
             authentication:
@@ -27,7 +30,53 @@ export class EksPipelineStack extends cdk.Stack {
         commands: ["npm ci", "npm run build", "npx cdk synth"],
       }),
       pipelineName: "EKSClusterBlueGreen",
+      codeBuildDefaults: {
+        rolePolicy: [
+              new iam.PolicyStatement({
+                actions: ['sts:AssumeRole'],
+                resources: ['*'],
+                conditions: {
+                  StringEquals: {
+                    'iam:ResourceTag/aws-cdk:bootstrap-role': 'lookup',
+                  },
+                },
+              }),
+        ],
+      },
     });
+    
+    // const bucket = s3.Bucket.fromBucketName(this, 'Bucket', 'medtronic-cdk-eks');
+    
+    // const pipeline = new CodePipeline(this, 'Pipeline', {
+    //   synth: new ShellStep('Synth', {
+    //     input: CodePipelineSource.s3(bucket, 'gitsource/aws-cdk-pipelines-eks-cluster.zip'),
+    //     commands: [
+    //       // Commands to load cdk.context.json from somewhere here
+    //       'cd aws-cdk-pipelines-eks-cluster',
+    //       'ls -lrt',
+    //       'npm ci',
+    //       'npm run build',
+    //       'npx cdk synth',
+    //       // Commands to store cdk.context.json back here
+    //     ],
+    //     primaryOutputDirectory: 'aws-cdk-pipelines-eks-cluster/cdk.out',
+    //   }),
+    //   pipelineName: "EKSClusterBlueGreen",
+    //   codeBuildDefaults: {
+    //     rolePolicy: [
+    //           new iam.PolicyStatement({
+    //             actions: ['sts:AssumeRole'],
+    //             resources: ['*'],
+    //             conditions: {
+    //               StringEquals: {
+    //                 'iam:ResourceTag/aws-cdk:bootstrap-role': 'lookup',
+    //               },
+    //             },
+    //           }),
+    //     ],
+    //   },
+    // });
+    
 
     const clusterANameSuffix = "blue";
     const clusterBNameSuffix = "green";
