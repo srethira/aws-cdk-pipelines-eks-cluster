@@ -80,5 +80,8 @@
         ]
       }
     ]
-  }
+  },
+  "ssm:account=471587831491:parameterName=/lz/vpc/app-subnet-1a/id:region=us-east-1": "subnet-01b4ff7da3bc4879a",
+  "ssm:account=471587831491:parameterName=/lz/vpc/app-subnet-2a/id:region=us-east-1": "subnet-07a3d974a77926214",
+  "ssm:account=471587831491:parameterName=/lz/vpc/app-subnet-3a/id:region=us-east-1": "subnet-08cb0865dc322d568"
 }

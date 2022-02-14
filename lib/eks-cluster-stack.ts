@@ -22,9 +22,17 @@ export class EksClusterStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: EksClusterStackProps) {
     super(scope, id, props);
 
-    // const vpc = new ec2.Vpc(this, "Vpc", { maxAzs: 3 });
+    const vpcId = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/id');  
     
-    const vpcId = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/id');     
+    const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
+    const privateSubnet2a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-2a/id'); 
+    const privateSubnet3a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-3a/id'); 
+    
+    const subnetFilter = ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a]);
+    
+    const vpc_subnets : ec2.SubnetSelection = {
+      subnetFilters: [ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a])],
+    };
     
     const vpc = ec2.Vpc.fromLookup(this, 'ImportVPC',{
       isDefault: false,
@@ -36,7 +44,7 @@ export class EksClusterStack extends cdk.Stack {
       version: props.clusterVersion,
       defaultCapacity: 0,
       vpc,
-      vpcSubnets: [{ subnetType: ec2.SubnetType.PRIVATE }],
+      vpcSubnets: [vpc_subnets]
     });
 
     const aud = `${cluster.clusterOpenIdConnectIssuer}:aud`;
