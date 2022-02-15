@@ -3,6 +3,8 @@ import eks = require("@aws-cdk/aws-eks");
 import iam = require("@aws-cdk/aws-iam");
 import ec2 = require("@aws-cdk/aws-ec2");
 
+import * as ssm from "@aws-cdk/aws-ssm";
+
 export interface EksManagedNodeGroupProps {
   cluster: eks.Cluster;
   nameSuffix: string;
@@ -51,6 +53,16 @@ export class EksManagedNodeGroup extends cdk.Construct {
       iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore")
     );
 
+    const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
+    const privateSubnet2a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-2a/id'); 
+    const privateSubnet3a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-3a/id'); 
+    
+    const subnetFilter = ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a]);
+    
+    const vpc_subnets : ec2.SubnetSelection = {
+      subnetFilters: [subnetFilter],
+    };
+
     props.cluster.addNodegroupCapacity("app-ng", {
       launchTemplateSpec: {
         id: lt.ref,
@@ -60,6 +72,7 @@ export class EksManagedNodeGroup extends cdk.Construct {
       maxSize: 6,
       amiType: eks.NodegroupAmiType.AL2_X86_64,
       nodeRole: nodeRole,
+      subnets: vpc_subnets,
     });
   }
 }

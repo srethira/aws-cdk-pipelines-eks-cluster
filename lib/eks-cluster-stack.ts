@@ -31,7 +31,7 @@ export class EksClusterStack extends cdk.Stack {
     const subnetFilter = ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a]);
     
     const vpc_subnets : ec2.SubnetSelection = {
-      subnetFilters: [ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a])],
+      subnetFilters: [subnetFilter],
     };
     
     const vpc = ec2.Vpc.fromLookup(this, 'ImportVPC',{

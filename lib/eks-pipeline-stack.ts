@@ -16,34 +16,6 @@ import { AppDnsStage } from "./app-dns-stage";
 export class EksPipelineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    // const pipeline = new CodePipeline(this, "Pipeline", {
-    //   synth: new ShellStep("Synth", {
-    //     input: CodePipelineSource.gitHub(
-    //       "srethira/aws-cdk-pipelines-eks-cluster",
-    //       "main",
-    //       {
-    //         authentication:
-    //           cdk.SecretValue.secretsManager("github-oauth-token"),
-    //       }
-    //     ),
-    //     commands: ["npm ci", "npm run build", "npx cdk synth"],
-    //   }),
-    //   pipelineName: "EKSClusterBlueGreen",
-    //   codeBuildDefaults: {
-    //     rolePolicy: [
-    //           new iam.PolicyStatement({
-    //             actions: ['sts:AssumeRole'],
-    //             resources: ['*'],
-    //             conditions: {
-    //               StringEquals: {
-    //                 'iam:ResourceTag/aws-cdk:bootstrap-role': 'lookup',
-    //               },
-    //             },
-    //           }),
-    //     ],
-    //   },
-    // });
     
     const bucket = s3.Bucket.fromBucketName(this, 'Bucket', 'medtronic-cdk-eks');
     
