@@ -21,6 +21,7 @@ export class EksManagedNodeGroup extends cdk.Construct {
     const lt = new ec2.CfnLaunchTemplate(this, "SSMLaunchTemplate", {
       launchTemplateData: {
         instanceType: "t3a.medium",
+        
         tagSpecifications: [
           {
             resourceType: "instance",
@@ -62,6 +63,13 @@ export class EksManagedNodeGroup extends cdk.Construct {
     const vpc_subnets : ec2.SubnetSelection = {
       subnetFilters: [subnetFilter],
     };
+    
+    const userData = ec2.UserData.forLinux();
+    
+    userData.addCommands(
+      'set -o xtrace',
+      `/etc/eks/bootstrap.sh ${props.cluster.clusterName} --use-max-pods false --kubelet-extra-args '--max-pods=17'`,
+    );
 
     props.cluster.addNodegroupCapacity("app-ng", {
       launchTemplateSpec: {

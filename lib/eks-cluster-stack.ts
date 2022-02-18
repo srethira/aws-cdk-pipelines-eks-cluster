@@ -44,7 +44,8 @@ export class EksClusterStack extends cdk.Stack {
       version: props.clusterVersion,
       defaultCapacity: 0,
       vpc,
-      vpcSubnets: [vpc_subnets]
+      vpcSubnets: [vpc_subnets],
+      endpointAccess: eks.EndpointAccess.PRIVATE, // No access outside of your VPC.
     });
 
     const aud = `${cluster.clusterOpenIdConnectIssuer}:aud`;
@@ -82,6 +83,14 @@ export class EksClusterStack extends cdk.Stack {
               "eks.amazonaws.com/role-arn": awsNodeIamRole.roleArn,
             },
           },
+          spec: {
+            containers: [{
+              env: [{
+                "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
+                "value": "true"
+              }]
+            }]
+          }
         },
         restorePatch: {
           metadata: {
@@ -90,7 +99,38 @@ export class EksClusterStack extends cdk.Stack {
         },
       }
     );
-
+    
+      const awsNodeCniPatchCustomNetwork = new eks.KubernetesPatch(
+      this,
+      "daemonSet/aws-node",
+      {
+        cluster,
+        resourceName: "daemonSet/aws-node",
+        resourceNamespace: "kube-system",
+        applyPatch: {
+          spec: {
+            containers: [{
+              env: [
+                {
+                  "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
+                  "value": "true"
+                },
+                {
+                  "name": "ENI_CONFIG_LABEL_DEF",
+                  "value": "topology.kubernetes.io/zone"
+                }
+              ]
+            }]
+          }
+        },
+        restorePatch: {
+          metadata: {
+            annotations: {},
+          },
+        },
+      }
+    );
+    
     const eksMng = new EksManagedNodeGroup(this, "EksManagedNodeGroup", {
       cluster: cluster,
       nameSuffix: props.nameSuffix,
