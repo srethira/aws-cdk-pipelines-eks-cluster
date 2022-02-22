@@ -83,14 +83,6 @@ export class EksClusterStack extends cdk.Stack {
               "eks.amazonaws.com/role-arn": awsNodeIamRole.roleArn,
             },
           },
-          spec: {
-            containers: [{
-              env: [{
-                "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
-                "value": "true"
-              }]
-            }]
-          }
         },
         restorePatch: {
           metadata: {
@@ -137,6 +129,7 @@ export class EksClusterStack extends cdk.Stack {
     });
 
     eksMng.node.addDependency(awsNodeCniPatch);
+    eksMng.node.addDependency(awsNodeCniPatchCustomNetwork);
 
     new AWSLoadBalancerController(this, "AWSLoadBalancerController", {
       cluster: cluster,
