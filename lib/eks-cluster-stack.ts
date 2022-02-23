@@ -24,7 +24,6 @@ export class EksClusterStack extends cdk.Stack {
 
     const vpcId = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/id');  
     
-    // const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
     const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
     const privateSubnet2a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-2a/id'); 
     const privateSubnet3a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-3a/id'); 
