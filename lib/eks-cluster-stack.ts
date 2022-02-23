@@ -151,21 +151,21 @@ export class EksClusterStack extends cdk.Stack {
       cluster: cluster,
     });
 
-    const hostZoneId = ssm.StringParameter.valueForStringParameter(
-      this,
-      "/eks-cdk-pipelines/hostZoneId"
-    );
+    // const hostZoneId = ssm.StringParameter.valueForStringParameter(
+    //   this,
+    //   "/eks-cdk-pipelines/hostZoneId"
+    // );
 
-    const zoneName = ssm.StringParameter.valueForStringParameter(
-      this,
-      "/eks-cdk-pipelines/zoneName"
-    );
+    // const zoneName = ssm.StringParameter.valueForStringParameter(
+    //   this,
+    //   "/eks-cdk-pipelines/zoneName"
+    // );
 
-    new ExternalDNS(this, "ExternalDNS", {
-      cluster: cluster,
-      hostZoneId: hostZoneId,
-      domainFilters: [`${props.nameSuffix}.${zoneName}`],
-    });
+    // new ExternalDNS(this, "ExternalDNS", {
+    //   cluster: cluster,
+    //   hostZoneId: hostZoneId,
+    //   domainFilters: [`${props.nameSuffix}.${zoneName}`],
+    // });
 
     new ClusterAutoscaler(this, "ClusterAutoscaler", {
       cluster: cluster,
@@ -186,7 +186,7 @@ export class EksClusterStack extends cdk.Stack {
     new Echoserver(this, "EchoServer", {
       cluster: cluster,
       nameSuffix: props.nameSuffix,
-      domainName: zoneName,
+      domainName: "example.com",
     });
   }
 }
