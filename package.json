@@ -22,10 +22,14 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
+    "@aws-cdk/assertions": "^1.145.0",
+    "@aws-cdk/assets": "^1.121.0",
     "@aws-cdk/aws-eks": "1.121.0",
     "@aws-cdk/core": "^1.121.0",
     "@aws-cdk/pipelines": "1.121.0",
+    "@aws-cdk/region-info": "^2.13.0",
     "@types/js-yaml": "latest",
+    "constructs": "^10.0.70",
     "js-yaml": "latest",
     "source-map-support": "^0.5.16",
     "sync-request": "latest"

@@ -24,28 +24,45 @@ export class EksClusterStack extends cdk.Stack {
 
     const vpcId = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/id');  
     
+    // const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
     const privateSubnet1a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-1a/id'); 
     const privateSubnet2a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-2a/id'); 
     const privateSubnet3a = ssm.StringParameter.valueFromLookup(this, '/lz/vpc/app-subnet-3a/id'); 
     
     const subnetFilter = ec2.SubnetFilter.byIds([privateSubnet1a, privateSubnet2a, privateSubnet3a]);
     
-    const vpc_subnets : ec2.SubnetSelection = {
+    let vpc_subnets_2: ec2.SubnetSelection = {
       subnetFilters: [subnetFilter],
+    };
+    
+    let vpc_subnets_1: ec2.SubnetSelection = {
+      subnetType: ec2.SubnetType.PRIVATE,
     };
     
     const vpc = ec2.Vpc.fromLookup(this, 'ImportVPC',{
       isDefault: false,
       vpcId: vpcId,
     });
+    
+    let selectedSubnets;
+
+    // Check if the correct subnets are resolved after CDK has refreshed its context (i.e. after 
+    // the vpcId is no longer the dummy vpc id)
+    if (vpc.vpcId != 'vpc-12345') {
+      selectedSubnets = vpc_subnets_2
+    } else {
+      // Otherwise eks.Cluster would complain
+      selectedSubnets = vpc_subnets_1
+    }
 
     const cluster = new eks.Cluster(this, `acme-${props.nameSuffix}`, {
       clusterName: `acme-${props.nameSuffix}`,
       version: props.clusterVersion,
       defaultCapacity: 0,
       vpc,
-      vpcSubnets: [vpc_subnets],
+      vpcSubnets: [selectedSubnets],
       endpointAccess: eks.EndpointAccess.PRIVATE, // No access outside of your VPC.
+      placeClusterHandlerInVpc: true,
     });
 
     const aud = `${cluster.clusterOpenIdConnectIssuer}:aud`;
