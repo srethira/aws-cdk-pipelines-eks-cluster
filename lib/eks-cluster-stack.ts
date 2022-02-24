@@ -2,11 +2,12 @@ import * as cdk from "@aws-cdk/core";
 import eks = require("@aws-cdk/aws-eks");
 import ec2 = require("@aws-cdk/aws-ec2");
 import iam = require("@aws-cdk/aws-iam");
+import kms = require("@aws-cdk/aws-kms");
 import * as ssm from "@aws-cdk/aws-ssm";
 
 import { EksManagedNodeGroup } from "./infrastructure/eks-mng";
 import { AWSLoadBalancerController } from "./infrastructure/aws-load-balancer-controller";
-import { ExternalDNS } from "./infrastructure/external-dns";
+// import { ExternalDNS } from "./infrastructure/external-dns";
 import { ClusterAutoscaler } from "./infrastructure/cluster-autoscaler";
 import { ContainerInsights } from "./infrastructure/container-insights";
 import { Calico } from "./infrastructure/calico";
@@ -53,6 +54,11 @@ export class EksClusterStack extends cdk.Stack {
       // Otherwise eks.Cluster would complain
       selectedSubnets = vpc_subnets_1
     }
+    
+    const k8sMasterKey = new kms.Key(this, 'MyKey', {
+      enableKeyRotation: true,
+      alias: "alias/k8s-master-key"
+    });
 
     const cluster = new eks.Cluster(this, `acme-${props.nameSuffix}`, {
       clusterName: `acme-${props.nameSuffix}`,
@@ -62,6 +68,7 @@ export class EksClusterStack extends cdk.Stack {
       vpcSubnets: [selectedSubnets],
       endpointAccess: eks.EndpointAccess.PRIVATE, // No access outside of your VPC.
       placeClusterHandlerInVpc: true,
+      secretsEncryptionKey: k8sMasterKey
     });
 
     const aud = `${cluster.clusterOpenIdConnectIssuer}:aud`;
@@ -146,6 +153,16 @@ export class EksClusterStack extends cdk.Stack {
 
     eksMng.node.addDependency(awsNodeCniPatch);
     eksMng.node.addDependency(awsNodeCniPatchCustomNetwork);
+    
+    new ec2.InterfaceVpcEndpoint(this, 'VPC Endpoint ELB', {
+      vpc,
+      service: new ec2.InterfaceVpcEndpointService('com.amazonaws.us-east-1.elasticloadbalancing', 443),
+      // Choose which availability zones to place the VPC endpoint in, based on
+      // available AZs
+      subnets: {
+        availabilityZones: ['us-east-1a', 'us-east-1b', 'us-east-1c']
+      }
+    });
 
     new AWSLoadBalancerController(this, "AWSLoadBalancerController", {
       cluster: cluster,
