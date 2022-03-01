@@ -66,7 +66,7 @@ export class EksClusterStack extends cdk.Stack {
       defaultCapacity: 0,
       vpc,
       vpcSubnets: [selectedSubnets],
-      endpointAccess: eks.EndpointAccess.PUBLIC, // No access outside of your VPC.
+      endpointAccess: eks.EndpointAccess.PRIVATE, // No access outside of your VPC.
       // placeClusterHandlerInVpc: true,
       secretsEncryptionKey: k8sMasterKey
     });
