@@ -38,6 +38,7 @@ export class EksManagedNodeGroup extends cdk.Construct {
       },
     });
 
+
     const nodeRole = new iam.Role(this, "EksNodeRole", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
     });
