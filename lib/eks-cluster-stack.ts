@@ -115,7 +115,7 @@ export class EksClusterStack extends cdk.Stack {
       }
     );
     
-      const awsNodeCniPatchCustomNetwork = new eks.KubernetesPatch(
+    const awsNodeCniPatchCustomNetwork = new eks.KubernetesPatch(
       this,
       "daemonSet/aws-node",
       {
@@ -130,10 +130,10 @@ export class EksClusterStack extends cdk.Stack {
                   "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
                   "value": "true"
                 },
-                {
-                  "name": "ENI_CONFIG_LABEL_DEF",
-                  "value": "topology.kubernetes.io/zone"
-                }
+                // {
+                //   "name": "ENI_CONFIG_LABEL_DEF",
+                //   "value": "topology.kubernetes.io/zone"
+                // }
               ]
             }]
           }
