@@ -125,15 +125,17 @@ export class EksClusterStack extends cdk.Stack {
         applyPatch: {
           spec: {
             containers: [{
+              name: "aws-node",
+              image: "602401143452.dkr.ecr.us-east-1.amazonaws.com/amazon-k8s-cni-init:v1.7.5-eksbuild.1",
               env: [
                 {
                   "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
                   "value": "true"
                 },
-                // {
-                //   "name": "ENI_CONFIG_LABEL_DEF",
-                //   "value": "topology.kubernetes.io/zone"
-                // }
+                {
+                  "name": "ENI_CONFIG_LABEL_DEF",
+                  "value": "topology.kubernetes.io/zone"
+                }
               ]
             }]
           }
